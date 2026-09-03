@@ -3,6 +3,12 @@
 Reads the CSVs in dataset/ and renders an interactive Streamlit dashboard.
 Chart styling follows the project's dataviz palette (dark surface, fixed
 categorical hue order, single-hue magnitude bars, no dual-axis charts).
+
+Visual direction: "bold data-forward" - a saturated, high-contrast, glass/glow
+"mission control" read on the same dark-glass language as design-system/, tuned
+up in intensity. Palette re-derived (not copied) from the dataviz skill's color
+formula and validated with scripts/validate_palette.js against this file's own
+SURFACE/PAGE (see design/bold-dataforward branch notes).
 """
 
 from pathlib import Path
@@ -13,27 +19,28 @@ import streamlit as st
 
 DATA_DIR = Path(__file__).parent / "dataset"
 
-# --- palette (validated dark-mode set, see CLAUDE.md / dataviz skill) ------
-SURFACE = "#1a1a19"
-PAGE = "#0d0d0d"
+# --- palette (bold data-forward set, validated against this SURFACE/PAGE via
+# the dataviz skill's scripts/validate_palette.js - see CLAUDE.md) ----------
+SURFACE = "#12141a"
+PAGE = "#05060a"
 INK_PRIMARY = "#ffffff"
-INK_SECONDARY = "#c3c2b7"
-INK_MUTED = "#898781"
-GRIDLINE = "#2c2c2a"
-BASELINE = "#383835"
+INK_SECONDARY = "#b9c2d4"
+INK_MUTED = "#7c8494"
+GRIDLINE = "#232733"
+BASELINE = "#333949"
 
-BLUE = "#3987e5"
-ORANGE = "#d95926"
-AQUA = "#199e70"
-YELLOW = "#c98500"
-MAGENTA = "#d55181"
-GREEN = "#008300"
-VIOLET = "#9085e9"
-RED = "#e66767"
+BLUE = "#1f6feb"
+ORANGE = "#e05b0a"
+AQUA = "#00937f"
+YELLOW = "#b38300"
+MAGENTA = "#c2308f"
+GREEN = "#1f9350"
+VIOLET = "#7c5cff"
+RED = "#ef3b3b"
 
-STATUS_GOOD = "#0ca30c"
-STATUS_WARNING = "#fab219"
-STATUS_CRITICAL = "#d03b3b"
+STATUS_GOOD = "#10a877"
+STATUS_WARNING = "#c2870f"
+STATUS_CRITICAL = "#c22246"
 
 TIER_COLORS = {"Free": INK_MUTED, "Silver": BLUE, "Gold": YELLOW, "Platinum": VIOLET}
 CHANNEL_COLORS = {
@@ -104,11 +111,15 @@ def style_fig(fig, height=320, showlegend=False):
         margin=dict(l=10, r=10, t=40, b=10),
         paper_bgcolor=SURFACE,
         plot_bgcolor=SURFACE,
-        font=dict(color=INK_SECONDARY, size=13),
-        title_font=dict(color=INK_PRIMARY, size=15),
+        font=dict(color=INK_SECONDARY, size=13, family="'Space Grotesk', sans-serif"),
+        title_font=dict(color=INK_PRIMARY, size=16, family="'Space Grotesk', sans-serif"),
         showlegend=showlegend,
         legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=INK_SECONDARY)),
-        hoverlabel=dict(bgcolor=PAGE, font=dict(color=INK_PRIMARY)),
+        hoverlabel=dict(
+            bgcolor=PAGE,
+            font=dict(color=INK_PRIMARY, family="'JetBrains Mono', monospace"),
+            bordercolor=BASELINE,
+        ),
     )
     fig.update_xaxes(gridcolor=GRIDLINE, linecolor=BASELINE, zerolinecolor=BASELINE, tickfont=dict(color=INK_MUTED))
     fig.update_yaxes(gridcolor=GRIDLINE, linecolor=BASELINE, zerolinecolor=BASELINE, tickfont=dict(color=INK_MUTED))
@@ -119,18 +130,90 @@ def unfiltered_caption():
     st.caption("This panel reflects the full customer table and is not affected by the filters above.")
 
 
-# --- page styling (mirrors design-system/ dark glass-card look) ---------
+# --- page styling: "bold data-forward" mission-control glass, intensified
+# well past the baseline design-system/ reference (louder glow, brighter
+# borders, denser mono numerals for KPI readouts) --------------------------
 st.markdown(
     f"""
     <style>
-    .stApp {{ background-color: {PAGE}; }}
-    div[data-testid="stMetric"] {{
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.10);
-        border-radius: 20px;
-        padding: 16px 18px;
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+    html, body, [class*="css"], .stApp {{
+        font-family: 'Space Grotesk', sans-serif;
     }}
-    div[data-testid="stMetricLabel"] {{ color: {INK_MUTED}; }}
+
+    .stApp {{
+        background:
+            radial-gradient(circle at 12% -10%, rgba(31,111,235,0.16), transparent 42%),
+            radial-gradient(circle at 88% 0%, rgba(124,92,255,0.14), transparent 45%),
+            {PAGE};
+    }}
+
+    h1, h2, h3 {{
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }}
+
+    /* metric / KPI cards - pronounced glass: luminous border, colored glow,
+       heavier rounding, dense mono figures for the readout numbers */
+    div[data-testid="stMetric"] {{
+        background: linear-gradient(160deg, rgba(31,111,235,0.16), rgba(124,92,255,0.06) 60%, rgba(255,255,255,0.02));
+        border: 1px solid rgba(124,140,255,0.38);
+        border-radius: 28px;
+        padding: 18px 22px;
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,0.04) inset,
+            0 22px 44px -20px rgba(31,111,235,0.55),
+            0 0 32px -10px rgba(124,92,255,0.45);
+        backdrop-filter: blur(8px);
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }}
+    div[data-testid="stMetric"]:hover {{
+        border-color: rgba(124,140,255,0.65);
+        box-shadow:
+            0 0 0 1px rgba(255,255,255,0.06) inset,
+            0 26px 52px -18px rgba(31,111,235,0.65),
+            0 0 44px -8px rgba(124,92,255,0.6);
+    }}
+    div[data-testid="stMetricLabel"] {{
+        color: {INK_MUTED};
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }}
+    div[data-testid="stMetricValue"] {{
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 2.05rem !important;
+        color: {INK_PRIMARY};
+        text-shadow: 0 0 22px rgba(31,111,235,0.5);
+        font-variant-numeric: tabular-nums;
+    }}
+
+    /* dataframes / tables - keep numerals tabular and dense like a readout */
+    div[data-testid="stDataFrame"] {{
+        font-family: 'JetBrains Mono', monospace;
+        font-variant-numeric: tabular-nums;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(124,140,255,0.18);
+    }}
+
+    /* tabs - bolder active-state glow to match the mission-control feel */
+    button[data-baseweb="tab"] {{
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+    }}
+    button[data-baseweb="tab"][aria-selected="true"] {{
+        color: {INK_PRIMARY} !important;
+        text-shadow: 0 0 16px rgba(31,111,235,0.55);
+    }}
+    div[data-baseweb="tab-highlight"] {{
+        background-color: {BLUE} !important;
+        box-shadow: 0 0 12px 1px rgba(31,111,235,0.7);
+    }}
     </style>
     """,
     unsafe_allow_html=True,
