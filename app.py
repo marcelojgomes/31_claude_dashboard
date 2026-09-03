@@ -186,10 +186,14 @@ st.markdown(
     div[data-testid="stMetricValue"] {{
         font-family: 'JetBrains Mono', monospace;
         font-weight: 700;
-        font-size: 2.05rem !important;
+        font-size: clamp(0.95rem, 0.6vw + 0.7rem, 1.55rem) !important;
+        letter-spacing: -0.02em;
         color: {INK_PRIMARY};
         text-shadow: 0 0 22px rgba(31,111,235,0.5);
         font-variant-numeric: tabular-nums;
+        white-space: normal !important;
+        overflow-wrap: break-word;
+        line-height: 1.15;
     }}
 
     /* dataframes / tables - keep numerals tabular and dense like a readout */
